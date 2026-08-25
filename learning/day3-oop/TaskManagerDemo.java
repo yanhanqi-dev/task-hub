@@ -18,23 +18,9 @@ public class TaskManagerDemo {
             System.out.println("你选择了" + choice);
 
             if (choice.equals("1")) {
-                System.out.print("请输入任务名称：");
-                String title = scanner.nextLine();
-
-                int id = tasks.size() + 1;
-                Task NewTask = new Task(id, title, false);
-                tasks.add(NewTask);
-
-                System.out.println("已添加任务：" + NewTask.getTitle());
+                addTask(scanner, tasks);
             } else if (choice.equals("2")) {
-                if(tasks.isEmpty()) {
-                    System.out.println("当前没有任务。");
-                } else {
-                    System.out.println("=== 任务列表 ===");
-                    for(Task currentTask : tasks) {
-                        System.out.println(currentTask.getId() + ". " + currentTask.getTitle());
-                    }
-                }
+                printTasks(tasks);
             } else if (choice.equals("0")) {
                 System.out.println("已退出 Task Hub，再见！");
                 break;
@@ -43,5 +29,27 @@ public class TaskManagerDemo {
             }
         }
         scanner.close();
+    }
+
+    private static void addTask(Scanner scanner, List<Task> tasks) {
+        System.out.print("请输入任务名称：");
+        String title = scanner.nextLine();
+
+        int id = tasks.size() + 1;
+        Task NewTask = new Task(id, title, false);
+        tasks.add(NewTask);
+
+        System.out.println("已添加任务：" + NewTask.getTitle());
+    }
+
+    private static void printTasks(List<Task> tasks) {
+        if(tasks.isEmpty()) {
+            System.out.println("当前没有任务。");
+        } else {
+            System.out.println("=== 任务列表 ===");
+            for(Task currentTask : tasks) {
+                System.out.println(currentTask.getId() + ". " + currentTask.getTitle());
+            }
+        }
     }
 }
