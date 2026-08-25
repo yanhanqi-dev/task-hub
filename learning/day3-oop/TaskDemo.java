@@ -4,6 +4,8 @@ public class TaskDemo {
         Task task = new Task(1, "学习 Java 对象", true);
         Task task2 = new Task(2, "完成 Day 3", false);
 
+        task2.markCompleted();
+
         System.out.println("编号： " + task.getId());
         System.out.println("标题： " + task.getTitle());
         System.out.println("已完成： " + task.isCompleted());
