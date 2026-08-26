@@ -2,10 +2,13 @@ package com.yanhanqi.taskhub.controller;
 
 import com.yanhanqi.taskhub.model.Task;
 import com.yanhanqi.taskhub.model.CreateTaskRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,9 +27,15 @@ public class TaskController {
     }
 
     @PostMapping("/api/tasks")
+    @ResponseStatus(HttpStatus.CREATED)
     public Task createTask(@RequestBody CreateTaskRequest request) {
+        String title = request.getTitle();
+        if (title == null || title.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "任务标题不能为空");
+        }
+
         long id = tasks.size() + 1L;
-        Task task = new Task(id, request.getTitle(), false);
+        Task task = new Task(id, title, false);
         tasks.add(task);
         return task;
     }
