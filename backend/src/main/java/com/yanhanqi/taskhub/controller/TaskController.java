@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.ArrayList;
@@ -38,5 +40,17 @@ public class TaskController {
         Task task = new Task(id, title, false);
         tasks.add(task);
         return task;
+    }
+
+    @PatchMapping("/api/tasks/{id}/complete")
+    public Task completeTask (@PathVariable Long id) {
+        for (Task task : tasks) {
+            if (task.getId().equals(id)) {
+                task.markCompleted();
+                return task;
+            }
+        }
+
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "任务不存在");
     }
 }
