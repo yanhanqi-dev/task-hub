@@ -23,6 +23,8 @@ public class TaskController {
             new Task(2L, "学习 REST API", true)
     ));
 
+    private long nextTaskId = 3L;
+
 
     @GetMapping("/api/tasks")
     public List<Task> listTasks() {
@@ -37,8 +39,8 @@ public class TaskController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "任务标题不能为空");
         }
 
-        long id = tasks.size() + 1L;
-        Task task = new Task(id, title, false);
+        Task task = new Task(nextTaskId, title, false);
+        nextTaskId++;
         tasks.add(task);
         return task;
     }
