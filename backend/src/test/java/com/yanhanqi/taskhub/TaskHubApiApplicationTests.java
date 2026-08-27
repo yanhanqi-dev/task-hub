@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -64,5 +65,16 @@ class TaskHubApiApplicationTests {
 	void deleteMissingTaskReturnsNotFound() throws Exception {
 		mockMvc.perform(delete("/api/tasks/99"))
 				.andExpect(status().isNotFound());
+	}
+
+	@Test
+	@DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
+	void deleteExistingTaskRemovesItFromTaskList() throws Exception {
+		mockMvc.perform(delete("/api/tasks/1"))
+				.andExpect(status().isNoContent());
+
+		mockMvc.perform(get("/api/tasks"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$[?(@.id == 1)]").isEmpty());
 	}
 }
