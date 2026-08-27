@@ -11,6 +11,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -48,5 +49,13 @@ class TaskHubApiApplicationTests {
 						.contentType(MediaType.APPLICATION_JSON)
 						.content("{\"title\":\"   \"}"))
 				.andExpect(status().isBadRequest());
+	}
+
+	@Test
+	void completeTaskMarksTaskCompleted() throws Exception {
+		mockMvc.perform(patch("/api/tasks/1/complete"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.id").value(1))
+				.andExpect(jsonPath("$.completed").value(true));
 	}
 }
