@@ -77,4 +77,10 @@ class TaskHubApiApplicationTests {
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$[?(@.id == 1)]").isEmpty());
 	}
+
+	@Test
+	void completeMissingTaskReturnsNotFound() throws Exception {
+		mockMvc.perform(patch("/api/tasks/99/complete"))
+				.andExpect(status().isNotFound());
+	}
 }
