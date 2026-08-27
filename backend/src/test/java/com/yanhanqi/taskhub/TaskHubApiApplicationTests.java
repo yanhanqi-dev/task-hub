@@ -12,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -57,5 +58,11 @@ class TaskHubApiApplicationTests {
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.id").value(1))
 				.andExpect(jsonPath("$.completed").value(true));
+	}
+
+	@Test
+	void deleteMissingTaskReturnsNotFound() throws Exception {
+		mockMvc.perform(delete("/api/tasks/99"))
+				.andExpect(status().isNotFound());
 	}
 }
