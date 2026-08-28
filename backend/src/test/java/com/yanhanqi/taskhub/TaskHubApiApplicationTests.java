@@ -29,20 +29,20 @@ class TaskHubApiApplicationTests {
 	}
 
 	@Test
-	void getTasksReturnsInitialTasks() throws Exception {
+	void getTasksReturnsEmptyListWhenDatabaseIsEmpty() throws Exception {
 		mockMvc.perform(get("/api/tasks"))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$[0].id").value(1))
-				.andExpect(jsonPath("$[1].title").value("学习 REST API"));
+				.andExpect(jsonPath("$").isEmpty());
 	}
 
 	@Test
+	@DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
 	void createTaskReturnsCreatedTask() throws Exception {
 		mockMvc.perform(post("/api/tasks")
 						.contentType(MediaType.APPLICATION_JSON)
 						.content("{\"title\": \"完成 Day 18\"}"))
 				.andExpect(status().isCreated())
-				.andExpect(jsonPath("$.id").value(3))
+				.andExpect(jsonPath("$.id").isNumber())
 				.andExpect(jsonPath("$.title").value("完成 Day 18"))
 				.andExpect(jsonPath("$.completed").value(false));
 	}
@@ -56,7 +56,13 @@ class TaskHubApiApplicationTests {
 	}
 
 	@Test
+	@DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
 	void completeTaskMarksTaskCompleted() throws Exception {
+		mockMvc.perform(post("/api/tasks")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content("{\"title\": \"完成 Day 18\"}"))
+				.andExpect(status().isCreated());
+
 		mockMvc.perform(patch("/api/tasks/1/complete"))
 				.andExpect(status().isOk())
 				.andExpect(jsonPath("$.id").value(1))
@@ -71,7 +77,12 @@ class TaskHubApiApplicationTests {
 
 	@Test
 	@DirtiesContext(methodMode = DirtiesContext.MethodMode.AFTER_METHOD)
-	void deleteExistingTaskRemovesItFromTaskList() throws Exception {
+	void deleteExistingTaskRemovesItFromDatabase() throws Exception {
+		mockMvc.perform(post("/api/tasks")
+						.contentType(MediaType.APPLICATION_JSON)
+						.content("{\"title\": \"完成 Day 18\"}"))
+				.andExpect(status().isCreated());
+
 		mockMvc.perform(delete("/api/tasks/1"))
 				.andExpect(status().isNoContent());
 

@@ -2,6 +2,8 @@ package com.yanhanqi.taskhub.controller;
 
 import com.yanhanqi.taskhub.model.Task;
 import com.yanhanqi.taskhub.model.CreateTaskRequest;
+import com.yanhanqi.taskhub.repository.TaskRepository;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,22 +15,20 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.server.ResponseStatusException;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 public class TaskController {
-    private final List<Task> tasks =  new ArrayList<>(List.of(
-            new Task(1L, "学习 Day 11", false),
-            new Task(2L, "学习 REST API", true)
-    ));
+    private final TaskRepository taskRepository;
 
-    private long nextTaskId = 3L;
+    public TaskController(TaskRepository taskRepository) {
+        this.taskRepository = taskRepository;
+    }
 
 
     @GetMapping("/api/tasks")
     public List<Task> listTasks() {
-        return tasks;
+        return taskRepository.findAll();
     }
 
     @PostMapping("/api/tasks")
@@ -39,34 +39,28 @@ public class TaskController {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "任务标题不能为空");
         }
 
-        Task task = new Task(nextTaskId, title, false);
-        nextTaskId++;
-        tasks.add(task);
-        return task;
+        Task task = new Task(title, false);
+        return taskRepository.save(task);
     }
 
     @PatchMapping("/api/tasks/{id}/complete")
     public Task completeTask (@PathVariable Long id) {
-        for (Task task : tasks) {
-            if (task.getId().equals(id)) {
-                task.markCompleted();
-                return task;
-            }
-        }
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "任务不存在"
+        ));
 
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "任务不存在");
+        task.markCompleted();
+        return taskRepository.save(task);
     }
 
     @DeleteMapping("/api/tasks/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteTask (@PathVariable Long id) {
-        for (int i = 0; i < tasks.size(); i++) {
-            if (tasks.get(i).getId().equals(id)) {
-                tasks.remove(i);
-                return;
-            }
-        }
-
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "任务不存在");
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND, "任务不存在"
+                ));
+        taskRepository.delete(task);
     }
 }
